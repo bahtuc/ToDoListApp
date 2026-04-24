@@ -1,21 +1,45 @@
 import tkinter as tk
-from logic import add_task, delete_task
+from logic import TaskManager
 
-def start_app():
-    root = tk.Tk()
-    root.title("To-DO App")
-    root.geometry("400x500")
 
-    global entry, listbox
+class TodoApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("To-do List App")
 
-    entry= tk.Entry(root)
-    entry.pack()
-    btn_add= tk.Button(root, text="Add", command=lambda: add_task(entry,listbox))
-    btn_add.pack()
+        self.manager = TaskManager()
 
-    btn_delete = tk.Button(root, text="Delete", command=lambda: delete_task(listbox))
-    btn_delete.pack()
-    listbox = tk.Listbox(root)
-    listbox.pack()
+        # UI
+        self.entry = tk.Entry(root, width=40)
+        self.entry.pack(pady=5)
 
-    root.mainloop()
+        tk.Button(root, text="Add", command=self.add_task).pack()
+        tk.Button(root, text="Delete", command=self.delete_task).pack()
+        tk.Button(root, text="Clear", command=self.clear_tasks).pack()
+
+        self.listbox = tk.Listbox(root, width=50)
+        self.listbox.pack(pady=10)
+
+        self.load_tasks_to_ui()
+
+    def load_tasks_to_ui(self):
+        for task in self.manager.get_tasks():
+            self.listbox.insert("end", task)
+
+    def add_task(self):
+        task = self.entry.get().strip()
+        if task:
+            self.manager.add_task(task)
+            self.listbox.insert("end", task)
+            self.entry.delete(0, "end")
+
+    def delete_task(self):
+        selected = self.listbox.curselection()
+        if selected:
+            task = self.listbox.get(selected)
+            self.manager.delete_task(task)
+            self.listbox.delete(selected)
+
+    def clear_tasks(self):
+        self.manager.clear_tasks()
+        self.listbox.delete(0, "end")

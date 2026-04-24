@@ -1,14 +1,23 @@
 import json
+import os
 
-FILE = "data/tasks.json"
+DATA_PATH = "data/tasks.json"
 
-def save_tasks(tasks):
-    with open(FILE, "w") as f:
-        json.dump(tasks, f)
 
 def load_tasks():
-    try:
-        with open(FILE, "r") as f:
-            return json.load(f)
-    except:
+    if not os.path.exists("data"):
+        os.makedirs("data")
+
+    if not os.path.exists(DATA_PATH):
         return []
+
+    try:
+        with open(DATA_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except json.JSONDecodeError:
+        return []
+
+
+def save_tasks(tasks):
+    with open(DATA_PATH, "w", encoding="utf-8") as f:
+        json.dump(tasks, f, ensure_ascii=False, indent=4)
